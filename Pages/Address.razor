@@ -1,0 +1,91 @@
+﻿@page "/address";
+@using System.Text.RegularExpressions;
+@inject IAddressService addressService;
+
+<h3>Address</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <input type="text" @bind-value="@cep" maxlength="8" />
+            <button @onclick="@onClick"> <span class="oi oi-plus" aria-hidden="true"></span> Search </button>
+        </div>
+        <div class="col">
+            <span>@cep</span>
+        </div>
+    </div>
+
+    @if (showErrorMessage)
+    {
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-warning" role="alert">
+                    @errorMessage
+                </div>
+            </div>
+        </div>
+    }
+    
+    @if (address != null)
+    {
+        <div class="row">
+            <table class="table table-active">
+                <tbody>
+                    <tr>
+                        <td>Cep:</td>
+                        <td>@address?.Cep</td>
+                    </tr>
+                    <tr>
+                        <td>State:</td>
+                        <td>@address?.State</td>
+                    </tr>
+                    <tr>
+                        <td>City:</td>
+                        <td>@address?.City</td>
+                    </tr>
+                    <tr>
+                        <td>Neighborhood:</td>
+                        <td>@address?.Neighborhood</td>
+                    </tr>
+                    <tr>
+                        <td>Street:</td>
+                        <td>@address?.Street</td>
+                    </tr>
+                    <tr>
+                        <td>Logitute:</td>
+                        <td>@address?.Location?.Coordinates?.Longitude</td>
+                    </tr>
+                    <tr>
+                        <td>Latitude:</td>
+                        <td>@address?.Location?.Coordinates?.Longitude</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+
+    private string cep { get; set; } = string.Empty;
+    private AddressDto? address { get; set; }
+    bool loading = false;
+
+    public bool showErrorMessage { get; set; }
+    public string? errorMessage { get; set; }
+
+    private async Task onClick()
+    {
+        try
+        {
+            address = await addressService.GetAddressAsync(cep);
+            showErrorMessage = false;
+        }
+        catch (Exception ex)
+        {
+            showErrorMessage = true;
+            errorMessage = ex.Message;
+            address = null;
+        }
+    }
+}
